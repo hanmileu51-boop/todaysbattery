@@ -6,9 +6,12 @@ import { BatteryCat } from '@/components/battery-cat'
 import { BatterySlider } from '@/components/battery-slider'
 import { ResultCard } from '@/components/result-card'
 import { TagChips } from '@/components/tag-chips'
+import { ResponsiveScaler } from '@/components/responsive-scaler'
 import {
   buildPrescription,
   getStage,
+  parseLLMResponse,
+  TAGS,
   type Prescription,
   type TagId,
 } from '@/lib/battery'
@@ -58,7 +61,7 @@ export default function Page() {
     track(() => setToast(null), 2200)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (loading) return
 
     // 엣지 케이스: 태그 미선택
@@ -76,8 +79,28 @@ export default function Page() {
     setCharging(false)
     setResult(null)
     track(() => setCharging(true), 60)
-    track(() => {
+
+    try {
+      const selectedTagObj = TAGS.find((t) => t.id === tag)
+      const fatigueReasonLabel = selectedTagObj ? selectedTagObj.label : tag
+
+      const res = await fetch('/api/prescribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          battery_level: level,
+          fatigue_reason: fatigueReasonLabel,
+        }),
+      })
+
+      const rawData = await res.json()
+      const prescription = parseLLMResponse(rawData, level, tag)
+
+      setResult({ level, prescription })
+    } catch (err) {
+      console.error('[Page] Failed to fetch prescription, using fallback:', err)
       setResult({ level, prescription: buildPrescription(level, tag) })
+    } finally {
       setLoading(false)
       setCharging(false)
       track(
@@ -88,7 +111,7 @@ export default function Page() {
           }),
         120,
       )
-    }, 1500)
+    }
   }
 
   const handleReset = () => {
@@ -114,7 +137,8 @@ export default function Page() {
         }}
       />
 
-      <div ref={topRef} className="relative mx-auto w-full max-w-xl">
+      <ResponsiveScaler minWidth={800}>
+        <div ref={topRef} className="relative mx-auto w-full max-w-xl">
         {/* 헤더 */}
         <header className="mb-6 text-center">
           <p className="font-doodle text-muted-foreground text-base">
@@ -261,6 +285,7 @@ export default function Page() {
           작은 쉼표예요.
         </p>
       </div>
+      </ResponsiveScaler>
 
       {/* 토스트 */}
       {toast && (

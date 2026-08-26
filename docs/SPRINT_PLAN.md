@@ -14,10 +14,10 @@
   - `components/tag-chips.tsx`
 
 ### 📝 작업 목록 (Task Breakdown)
-1. **[Task 1-1]** 단일 화면 레이아웃 및 800px CSS scale 래퍼 점검
-2. **[Task 1-2]** 배터리 슬라이더 핸들 및 트랙 1% 단위 반응형 바인딩
-3. **[Task 1-3]** 고양이 비주얼 5구간 매핑 검증 (Purr / Calm / Sleepy / Drained / Dead)
-4. **[Task 1-4]** 7종 피로 원인 태그 칩 단일 선택 제약(Single Constraint) 적용
+1. **[Task 1-1]** ✅ 단일 화면 레이아웃 및 800px CSS scale 래퍼(`components/responsive-scaler.tsx`) 적용 완료
+2. **[Task 1-2]** ✅ 배터리 슬라이더 핸들 및 트랙 1% 단위 반응형 바인딩 점검 완료
+3. **[Task 1-3]** ✅ 고양이 비주얼 5구간 매핑 검증 (Purr / Calm / Sleepy / Drained / Dead) 완료
+4. **[Task 1-4]** ✅ 7종 피로 원인 태그 칩 단일 선택 제약(Single Constraint) 적용 확인 완료
 
 ---
 
@@ -30,10 +30,10 @@
   - `app/page.tsx`
 
 ### 📝 작업 목록 (Task Breakdown)
-1. **[Task 2-1]** Next.js API Route Handler (`POST /api/prescribe`) 작성
-2. **[Task 2-2]** OpenAI SDK / API 통신 구축 및 GPT-4o-mini System Prompt 주입
-3. **[Task 2-3]** Response JSON Schema 검증 및 파싱 로직 작성
-4. **[Task 2-4]** 클라이언트 `handleSubmit` 함수와 API 연동, 로딩 인디케이터 처리
+1. **[Task 2-1]** ✅ Next.js API Route Handler (`POST /api/prescribe`) 작성 완료
+2. **[Task 2-2]** ✅ OpenAI GPT-4o-mini API 연동 및 System Prompt 주입 완료
+3. **[Task 2-3]** ✅ Response JSON Schema 검증 및 `parseLLMResponse` 로직 적용 완료
+4. **[Task 2-4]** ✅ 클라이언트 `handleSubmit` 함수와 `/api/prescribe` API 데이터 파이프라인 바인딩 완료
 
 ---
 

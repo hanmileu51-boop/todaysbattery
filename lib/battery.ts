@@ -202,3 +202,46 @@ export function buildPrescription(level: number, tag: TagId): Prescription {
     gain: Math.min(100, level + gain) - level,
   }
 }
+
+export type LLMPrescriptionResponse = {
+  status_comment: string
+  healing_routines: string[]
+  cheering_message: string
+  recommended_bgm: string
+  micro_mission: string
+  expected_charge_percent: number
+}
+
+export function parseLLMResponse(
+  raw: any,
+  level: number,
+  tag: TagId
+): Prescription {
+  if (
+    !raw ||
+    typeof raw.status_comment !== 'string' ||
+    !Array.isArray(raw.healing_routines) ||
+    typeof raw.cheering_message !== 'string'
+  ) {
+    return buildPrescription(level, tag)
+  }
+
+  const bgmTitle = String(raw.recommended_bgm || '잔잔한 Lo-fi 재즈')
+  const bgmTag = '#' + bgmTitle.replace(/\s+/g, '_')
+  const expectedCharge =
+    typeof raw.expected_charge_percent === 'number'
+      ? raw.expected_charge_percent
+      : level + 15
+
+  const gain = Math.max(0, Math.min(100, expectedCharge) - level)
+
+  return {
+    banner: raw.status_comment,
+    routines: raw.healing_routines.slice(0, 4),
+    coach: raw.cheering_message,
+    bgm: { tag: bgmTag, title: bgmTitle },
+    mission: String(raw.micro_mission || '10초 동안 화면 뒤집어놓기'),
+    gain,
+  }
+}
+
