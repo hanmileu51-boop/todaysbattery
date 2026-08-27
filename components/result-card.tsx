@@ -412,7 +412,7 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
 
         {prescription.isOffline && (
           <p className="font-doodle text-muted-foreground border-border border-t pt-2 text-center text-xs">
-            🌐 오프라인 모드로 작성된 처방전입니다
+            🍃 바람이 전해주는 고양이의 포근한 로컬 처방전입니다 🐾
           </p>
         )}
       </div>

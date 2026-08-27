@@ -97,7 +97,7 @@ export default function Page() {
       clearTimeout(delayTimer)
       setResult({
         level,
-        prescription: parseLLMResponse(STATIC_FALLBACK_JSON, level, tag, true),
+        prescription: buildPrescription(level, tag, true),
       })
       setLoading(false)
       setCharging(false)
@@ -144,10 +144,10 @@ export default function Page() {
     } catch (err) {
       clearTimeout(clientTimeout)
       clearTimeout(delayTimer)
-      console.warn('[Page] API Error or Timeout, using static fallback:', err)
+      console.warn('[Page] API Error or Timeout, using tag fallback:', err)
       setResult({
         level,
-        prescription: parseLLMResponse(STATIC_FALLBACK_JSON, level, tag),
+        prescription: buildPrescription(level, tag),
       })
     } finally {
       setLoading(false)

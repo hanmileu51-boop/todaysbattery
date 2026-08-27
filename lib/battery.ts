@@ -191,16 +191,16 @@ const TAG_PLAN: Record<
 }
 
 export const STATIC_FALLBACK_JSON = {
-  status_comment: '통신 에너지가 잠시 방전되었지만 괜찮아요',
+  status_comment: '마음의 그늘을 가만히 보듬어줄 포근한 시간이다냥 🍃',
   healing_routines: [
     '어깨를 가볍게 으쓱했다가 툭 내려놓기 (5회)',
     '창밖 먼 풍경을 10초간 멍하니 바라보기',
     '시원한 물 한 모금 천천히 마시기',
   ],
   cheering_message:
-    '인터넷 연결이 불안정해도 당신의 하루는 소중해요. 지금은 그냥 눈을 감고 크게 한 번 숨 쉬어보세요.',
-  recommended_bgm: '잔잔한 빗소리 ASMR',
-  micro_mission: '기지개 켜며 하품 시원하게 하기',
+    '어떤 하루를 보냈더라도 너의 오늘엔 잘못이 없다냥. 잠깐 눈을 감고 고양이처럼 시원한 기지개를 켜보라냥 🐾',
+  recommended_bgm: '잔잔한 빗소리 앰비언스',
+  micro_mission: '10초 동안 마음 쉼표 켜기',
   expected_charge_percent: 50,
 }
 
