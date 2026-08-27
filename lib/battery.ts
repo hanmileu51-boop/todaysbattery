@@ -89,6 +89,9 @@ export type Prescription = {
   bgm: { tag: string; title: string }
   mission: string
   gain: number
+  isOffline?: boolean
+  isEmergency?: boolean
+  isMax?: boolean
 }
 
 const TAG_PLAN: Record<
@@ -187,19 +190,59 @@ const TAG_PLAN: Record<
   },
 }
 
-export function buildPrescription(level: number, tag: TagId): Prescription {
+export const STATIC_FALLBACK_JSON = {
+  status_comment: '통신 에너지가 잠시 방전되었지만 괜찮아요',
+  healing_routines: [
+    '어깨를 가볍게 으쓱했다가 툭 내려놓기 (5회)',
+    '창밖 먼 풍경을 10초간 멍하니 바라보기',
+    '시원한 물 한 모금 천천히 마시기',
+  ],
+  cheering_message:
+    '인터넷 연결이 불안정해도 당신의 하루는 소중해요. 지금은 그냥 눈을 감고 크게 한 번 숨 쉬어보세요.',
+  recommended_bgm: '잔잔한 빗소리 ASMR',
+  micro_mission: '기지개 켜며 하품 시원하게 하기',
+  expected_charge_percent: 50,
+}
+
+export function buildPrescription(
+  level: number,
+  tag: TagId,
+  isOffline?: boolean,
+): Prescription {
   const stage = getStage(level)
   const plan = TAG_PLAN[tag]
-  // 낮은 배터리일수록 회복 여지가 크게 느껴지도록 보정
+  const isEmergency = level === 0
+  const isMax = level === 100
+
+  // 100% 입력 시 유지 루틴 및 0 gain 클램핑
+  if (isMax) {
+    return {
+      banner: '이미 완충 상태군요! 유지 루틴을 제공합니다',
+      routines: [
+        '현재 활력 유지를 위해 물 한 바가지 마시기',
+        '옆사람에게 미소 보내며 에너지 나누기',
+        '오늘 나에게 감사 인사 3번 건네기',
+      ],
+      coach: '에너지가 넘치는 멋진 날이에요! 이 기운을 나만의 방식으로 마음껏 펼쳐보세요.',
+      bgm: { tag: '#완충_에너지', title: 'Upbeat Sunshine Pop' },
+      mission: '주변 사람 한 명에게 기분 좋은 칭찬 한 마디',
+      gain: 0,
+      isOffline,
+      isMax: true,
+    }
+  }
+
   const boost = level < 25 ? 6 : level < 50 ? 3 : 0
   const gain = plan.gain + boost
   return {
-    banner: stage.banner,
+    banner: isEmergency ? '🚨 [긴급 응급 충전 모드] 방전된 나를 위한 응급처치' : stage.banner,
     routines: plan.routines,
     coach: plan.coach,
     bgm: plan.bgm,
     mission: plan.mission,
     gain: Math.min(100, level + gain) - level,
+    isOffline,
+    isEmergency,
   }
 }
 
@@ -215,7 +258,8 @@ export type LLMPrescriptionResponse = {
 export function parseLLMResponse(
   raw: any,
   level: number,
-  tag: TagId
+  tag: TagId,
+  isOffline?: boolean,
 ): Prescription {
   if (
     !raw ||
@@ -223,7 +267,26 @@ export function parseLLMResponse(
     !Array.isArray(raw.healing_routines) ||
     typeof raw.cheering_message !== 'string'
   ) {
-    return buildPrescription(level, tag)
+    return buildPrescription(level, tag, isOffline)
+  }
+
+  const isEmergency = level === 0
+  const isMax = level === 100
+
+  if (isMax) {
+    return {
+      banner: '이미 완충 상태군요! 유지 루틴을 제공합니다',
+      routines: raw.healing_routines.slice(0, 4),
+      coach: raw.cheering_message,
+      bgm: {
+        tag: '#' + String(raw.recommended_bgm || '완충_에너지').replace(/\s+/g, '_'),
+        title: String(raw.recommended_bgm || 'Upbeat Sunshine Pop'),
+      },
+      mission: String(raw.micro_mission || '10초 동안 화면 뒤집어놓기'),
+      gain: 0,
+      isOffline,
+      isMax: true,
+    }
   }
 
   const bgmTitle = String(raw.recommended_bgm || '잔잔한 Lo-fi 재즈')
@@ -233,6 +296,7 @@ export function parseLLMResponse(
       ? raw.expected_charge_percent
       : level + 15
 
+  // 100% 클램핑
   const gain = Math.max(0, Math.min(100, expectedCharge) - level)
 
   return {
@@ -242,6 +306,8 @@ export function parseLLMResponse(
     bgm: { tag: bgmTag, title: bgmTitle },
     mission: String(raw.micro_mission || '10초 동안 화면 뒤집어놓기'),
     gain,
+    isOffline,
+    isEmergency,
   }
 }
 

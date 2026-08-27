@@ -48,6 +48,11 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
         className="border-foreground/85 border-b-[3px] px-5 py-4 text-center"
         style={{ background: stage.tint }}
       >
+        {prescription.isEmergency && (
+          <span className="font-doodle mb-1 inline-block rounded-full bg-red-600 px-3 py-0.5 text-sm font-bold text-white shadow-sm">
+            🚨 긴급 응급 충전 모드
+          </span>
+        )}
         <p className="font-doodle text-xl leading-snug text-balance sm:text-2xl">
           {prescription.banner}
         </p>
@@ -278,6 +283,12 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
             다시하기
           </button>
         </div>
+
+        {prescription.isOffline && (
+          <p className="font-doodle text-muted-foreground border-border border-t pt-2 text-center text-xs">
+            🌐 오프라인 모드로 작성된 처방전입니다
+          </p>
+        )}
       </div>
     </section>
   )

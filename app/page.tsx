@@ -11,6 +11,7 @@ import {
   buildPrescription,
   getStage,
   parseLLMResponse,
+  STATIC_FALLBACK_JSON,
   TAGS,
   type Prescription,
   type TagId,
@@ -61,10 +62,12 @@ export default function Page() {
     track(() => setToast(null), 2200)
   }
 
+  const [loadingText, setLoadingText] = useState('따뜻한 처방전을 데우고 있어요…')
+
   const handleSubmit = async () => {
     if (loading) return
 
-    // 엣지 케이스: 태그 미선택
+    // 엣지 케이스 1: 태그 미선택
     if (!tag) {
       tagRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       setShake(false)
@@ -78,7 +81,40 @@ export default function Page() {
     setLoading(true)
     setCharging(false)
     setResult(null)
+    setLoadingText('따뜻한 처방전을 데우고 있어요…')
+
+    // 3초 지연 시 문구 유연 변경 (Policy 3)
+    const delayTimer = setTimeout(() => {
+      setLoadingText('조금만 기다려주세요, 충전 완료 직전이에요!')
+    }, 3000)
+    timers.current.push(delayTimer)
+
     track(() => setCharging(true), 60)
+
+    // 엣지 케이스 6: 오프라인 상태 감지 (Policy 6)
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine
+    if (isOffline) {
+      clearTimeout(delayTimer)
+      setResult({
+        level,
+        prescription: parseLLMResponse(STATIC_FALLBACK_JSON, level, tag, true),
+      })
+      setLoading(false)
+      setCharging(false)
+      track(
+        () =>
+          resultRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          }),
+        120,
+      )
+      return
+    }
+
+    // 엣지 케이스 4: 5초 타임아웃 AbortController (Policy 4)
+    const controller = new AbortController()
+    const clientTimeout = setTimeout(() => controller.abort(), 5000)
 
     try {
       const selectedTagObj = TAGS.find((t) => t.id === tag)
@@ -87,19 +123,32 @@ export default function Page() {
       const res = await fetch('/api/prescribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           battery_level: level,
           fatigue_reason: fatigueReasonLabel,
         }),
       })
 
+      clearTimeout(clientTimeout)
+      clearTimeout(delayTimer)
+
+      if (!res.ok) {
+        throw new Error(`HTTP Error status: ${res.status}`)
+      }
+
       const rawData = await res.json()
       const prescription = parseLLMResponse(rawData, level, tag)
 
       setResult({ level, prescription })
     } catch (err) {
-      console.error('[Page] Failed to fetch prescription, using fallback:', err)
-      setResult({ level, prescription: buildPrescription(level, tag) })
+      clearTimeout(clientTimeout)
+      clearTimeout(delayTimer)
+      console.warn('[Page] API Error or Timeout, using static fallback:', err)
+      setResult({
+        level,
+        prescription: parseLLMResponse(STATIC_FALLBACK_JSON, level, tag),
+      })
     } finally {
       setLoading(false)
       setCharging(false)
@@ -255,7 +304,7 @@ export default function Page() {
                 />
               </div>
               <p className="font-doodle text-muted-foreground mt-2 text-center text-sm">
-                따뜻한 처방전을 데우고 있어요…
+                {loadingText}
               </p>
             </div>
           )}
