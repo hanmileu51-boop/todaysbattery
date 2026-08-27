@@ -69,3 +69,20 @@
 2. **[Task 4-2]** ✅ `[👍 도움이 됐어요]` / `[👎 별로예요]` 피드백 버튼 및 2.2초 토스트 출력 완료
 3. **[Task 4-3]** ✅ `[🔄 다시하기]` 클릭 시 50% 슬라이더/태그 리셋 및 상단 스무스 스크롤 이동 완료
 4. **[Task 4-4]** ✅ DoD 체크리스트 7종 항목 종합 검증 및 QA 통과 완료
+
+---
+
+## 📌 Sprint AI: Gemini 3.6 Flash 고도화 및 AI 고양이 코치 대화
+
+- **목표**: Gemini 3.6 Flash 기반 맞춤형 처방전 고도화 및 처방 카드 하단 1회성 AI 속마음 대화 인터랙션 구현
+- **담당 파일**:
+  - `app/api/prescribe/route.ts`
+  - `app/api/chat/route.ts` (NEW)
+  - `components/result-card.tsx`
+
+### 📝 작업 목록 (Task Breakdown)
+1. **[Task AI-1]** ✅ `models/gemini-3.6-flash` 연동 및 JSON 처방 파이프라인 고도화 완료
+2. **[Task AI-2]** ✅ Next.js AI 대화 라우트 (`POST /api/chat`) 신규 생성 완료
+3. **[Task AI-3]** ✅ `ResultCard` 컴포넌트 내 1회성 AI 고양이 코치 대화 입력 폼 및 답장 말풍선 UI 수립 완료
+4. **[Task AI-4]** ✅ 프로덕션 빌드 통과 및 터미널 스프린트 결과 리포팅 완료
+

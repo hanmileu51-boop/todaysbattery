@@ -13,6 +13,7 @@
 | **Sprint 2** | **LLM API 연동 및 데이터 파이프라인 구축** | Next.js `/api/prescribe` 라우트, GPT-4o-mini JSON 연동, 클라이언트 바인딩 | 1-2일 | ✅ 완료 |
 | **Sprint 3** | **7가지 예외 처리 및 Fallback 시스템 구현** | 태그 미선택/중복클릭/지연/에러/타임아웃/오프라인/극단수치 Fallback 정책 | 1-2일 | ✅ 완료 |
 | **Sprint 4** | **처방 카드 인터랙션, QA 및 DoD 검증** | 체크리스트, 피드백 토스트, 리셋 애니메이션, DoD 최종 검증 | 1일 | ✅ 완료 |
+| **Sprint AI** | **Gemini 3.6 Flash 고도화 & AI 고양이 코치 대화** | Gemini 3.6 Flash 연동, `/api/chat` 대화 라우트 및 고양이 코치 1회 대화 UI | 1일 | ✅ 완료 |
 
 ---
 
