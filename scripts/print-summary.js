@@ -1,29 +1,25 @@
-console.log('\n' + '='.repeat(72));
-console.log('  🔋 [오늘의 배터리] Gemini AI 기반 고도화 개발 스프린트 수행 결과');
-console.log('='.repeat(72) + '\n');
+console.log('\n' + '='.repeat(74));
+console.log('  🐱 [오늘의 배터리] 감성 카피 순화 & 고민별 맞춤 고양이 조언 스프린트 결과');
+console.log('='.repeat(74) + '\n');
 
-console.log('📌 Phase 1 (AI Sprint 1): 상황 감지 맞춤 프롬프트 엔지니어링');
+console.log('📌 Humanization Sprint 1: 기계적 표현 ➔ 따뜻한 감성 힐링 표현 전면 개편');
 console.log('  --------------------------------------------------');
-console.log('  - [접속 시간대 감지] : 아침/오후/저녁/야간(22시~05시) 수면 톤 자동 주입');
-console.log('  - [배터리 구간 감지] : 0~9% 긴급 응급 충전 모드 & 80~100% 완충 유지 모드');
-console.log('  - [수행 결과]        : ✅ 완료 (app/api/prescribe/route.ts 동적 프롬프트 적용)\n');
+console.log('  - [헤더 문구 변경]    : "하루에 한 번, 나를 위한 정비 시간" ➔ "하루에 한 번, 나를 위한 따뜻한 쉼표"');
+console.log('  - [질문 문구 순화]    : "무엇 때문에 배터리가 닳았나요?" ➔ "오늘 어떤 고민 때문에 마음에 그늘이 졌나요?"');
+console.log('  - [오프라인/에러 순화]: "통신 에너지가 방전되었습니다" ➔ "바람이 잠시 소식을 멈췄지만, 고양이의 온기는 곁에 있어요 🍃"');
+console.log('  - [수행 결과]        : ✅ 완료 (lib/battery.ts & app/page.tsx 감성 문구 전면 리팩토링)\n');
 
-console.log('📌 Phase 2 (AI Sprint 2): 1초 대화형 고양이 코치 꼬리질문');
+console.log('📌 Humanization Sprint 2: 7가지 피로 고민별 고양이 차별화 말풍선 조언 강화');
 console.log('  --------------------------------------------------');
-console.log('  - [백엔드 API]       : /api/chat 라우트 핸들러 신규 구축 완료');
-console.log('  - [프론트엔드 UI]    : 퀵 질문 칩 3종 배치 및 Gemini 고양이 답변 말풍선 렌더링');
-console.log('  - [수행 결과]        : ✅ 완료 (components/result-card.tsx & app/api/chat/route.ts)\n');
+console.log('  - [공부 📚]          : 무거운 책을 잠시 덮어도 괜찮다냥. 오늘 앉아있던 그 시간 자체가 네 멋진 실력이다냥');
+console.log('  - [일 💼]            : 할 일이 줄지 않는 건 네가 느린 게 아니라 세상이 너무 빠른 거다냥! 기지개 켜라냥');
+console.log('  - [사람 관계 😵]     : 모든 사람에게 좋은 사람일 필요 없다냥. 오직 내 마음에만 달콤한 츄르를 건네라냥');
+console.log('  - [잠 부족 😴]       : 눈꺼풀이 스르륵 감기는구나냥! 오늘 밤은 딱 10분만 먼저 이불 속으로 쏙 들어가라냥 zZ');
+console.log('  - [이유 없음 😢]     : 이유 없이 마음에 그늘이 져도 괜찮다냥. 고양이도 가끔 멍하니 햇살 아래 누워있는다냥');
+console.log('  - [연애 ❤️]          : 마음의 파도가 요동치는 건 그만큼 네가 다정하고 진심이었단 뜻이다냥. 넌 사랑스럽다냥');
+console.log('  - [모르겠음 🤷]       : 억지로 이유를 찾지 말라냥. 몰라도 괜찮으니 고양이 털 복숭이 온기만 느끼라냥');
+console.log('  - [수행 결과]        : ✅ 완료 (app/api/prescribe/route.ts & lib/battery.ts 1:1 고민 튜닝)\n');
 
-console.log('📌 Phase 3 (AI Sprint 3): Gemini AI 반응성 및 실시간 타자기 이펙트');
-console.log('  --------------------------------------------------');
-console.log('  - [체감 지연 감소]   : 처방 메시지 character-by-character 타이핑 시각화');
-console.log('  - [수행 결과]        : ✅ 완료 (components/result-card.tsx typedCoach 이펙트)\n');
-
-console.log('📌 Phase 4 (AI Sprint 4): 앰비언트 AI 사운드 큐레이션');
-console.log('  --------------------------------------------------');
-console.log('  - [BGM 무드 연동]    : 추천 BGM(Lo-fi, 빗소리 등) 앰비언트 오디오 플레이어 토글');
-console.log('  - [수행 결과]        : ✅ 완료 (components/result-card.tsx 재생/듣기 토글)\n');
-
-console.log('='.repeat(72));
-console.log('  🎉 모든 AI 고도화 스프린트(Phase 1~4) 및 빌드 검증이 완료되었습니다.');
-console.log('='.repeat(72) + '\n');
+console.log('='.repeat(74));
+console.log('  🎉 감성 표현 순화 및 고민별 고양이 맞춤 조언 스프린트가 완료되었습니다.');
+console.log('='.repeat(74) + '\n');

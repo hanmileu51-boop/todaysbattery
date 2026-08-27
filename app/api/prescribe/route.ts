@@ -26,13 +26,23 @@ function buildDynamicSystemPrompt(batteryLevel: number, fatigueReason: string) {
 [현재 사용자 서비스 컨텍스트]
 - 접속 시간대: ${timeContext}
 - 에너지 상태: ${levelContext}
+- 피로 고민: ${fatigueReason}
+
+[피로 고민별 고양이 코치 조언 튜닝 지침]
+- 공부: 학업 스트레스와 머리 과열을 위로하며 오늘 노력 자체를 칭찬하는 고양이 코치 톤 (~냥)
+- 일: 무한 업무와 모니터 피로를 사르르 녹이며 기지개를 권하는 고양이 코치 톤 (~냥)
+- 사람 관계: 타인의 시선에서 벗어나 오직 내 마음에만 달콤한 츄르를 건네도록 다독이는 고양이 톤 (~냥)
+- 잠 부족: 눈꺼풀 무거운 나른함과 따뜻한 이불 속 온기를 전하는 수면 고양이 톤 (~냥)
+- 이유 없음: 이유 없이 우울해도 네 잘못이 아니라고 햇살 아래 누워 안아주는 고양이 톤 (~냥)
+- 연애: 마음의 파도가 출렁여도 네 존재 자체로 사랑스럽다고 보듬는 고양이 톤 (~냥)
+- 모르겠음: 억지로 원인을 찾지 말고 고양이 털 복숭이 온기에 몸을 맡기라는 고양이 톤 (~냥)
 
 [출력 작성 원칙]
-1. status_comment: 현재 배터리 상태와 시간대를 반영한 위트 있는 한 줄 비유 진단.
+1. status_comment: 현재 고민(${fatigueReason})과 시간대를 반영한 기계적이지 않은 다뜻하고 위트 있는 한 줄 비유 진단.
 2. healing_routines: 지금 자리에서 1분 안에 실천 가능한 구체적 액션 3가지 (스트레칭, 호흡, 시각/감각 환기 등).
-3. cheering_message: 시간대와 에너지를 고려한 다정하고 따뜻한 고양이 말투의 응원 메시지 (2~3문장).
-4. recommended_bgm: 기분 전환에 도움 되는 BGM 무드/장르 1개 (예: Lo-fi 재즈, 빗소리 앰비언스, 카페 소음 등).
-5. micro_mission: 10초~1분 내 완수할 수 있는 초간단 미션 1개.
+3. cheering_message: 고민(${fatigueReason})에 1:1 맞춤화된 다정하고 따뜻한 고양이 말투의 응원 메시지 (2~3문장, ~냥, ~다냥 사용).
+4. recommended_bgm: 기분 전환에 도움 되는 앰비언트 BGM 무드/장르 1개.
+5. micro_mission: 10초~1분 내 완수할 수 있는 초간단 마음 쉼표 미션 1개.
 6. expected_charge_percent: 입력된 배터리 수치보다 +10%p~+25%p 상승한 예상 도달치 정수 (최대 100 제한).`
 }
 
@@ -40,16 +50,16 @@ function buildDynamicSystemPrompt(batteryLevel: number, fatigueReason: string) {
 function getFallbackPrescription(batteryLevel: number, fatigueReason: string) {
   const boost = Math.min(100, batteryLevel + Math.floor(Math.random() * 15) + 10)
   return {
-    status_comment: `🔋 ${fatigueReason} 때문에 에너지가 절전 모드에 들어갔네요!`,
+    status_comment: `🍃 ${fatigueReason} 때문에 지친 내 마음, 잠시 쉬어가도 괜찮다냥!`,
     healing_routines: [
       '어깨를 가볍게 으쓱했다가 툭 내려놓기 (5회)',
       '창밖 먼 풍경을 10초간 멍하니 바라보기',
       '시원한 물 한 모금 천천히 마시기',
     ],
     cheering_message:
-      '배터리가 닳았다고 당황할 것 없어요. 고양이처럼 잠깐 따뜻한 해가 드는 곳에 누워 쉬어가도 충분해요.',
-    recommended_bgm: '잔잔한 Lo-fi 재즈',
-    micro_mission: '스마트폰 화면 10초간 뒤집어두기',
+      '바람이 잠시 소식을 멈췄지만 고양이의 온기는 언제나 곁에 있다냥. 잠깐 눈을 감고 시원한 고양이 기지개를 켜보라냥 🐾',
+    recommended_bgm: '잔잔한 빗소리 앰비언스',
+    micro_mission: '10초 동안 마음 쉼표 켜기',
     expected_charge_percent: boost,
   }
 }

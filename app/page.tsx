@@ -62,7 +62,7 @@ export default function Page() {
     track(() => setToast(null), 2200)
   }
 
-  const [loadingText, setLoadingText] = useState('따뜻한 처방전을 데우고 있어요…')
+  const [loadingText, setLoadingText] = useState('고양이 코치가 온기를 담아 마음 처방전을 굽고 있어요…')
 
   const handleSubmit = async () => {
     if (loading) return
@@ -81,11 +81,11 @@ export default function Page() {
     setLoading(true)
     setCharging(false)
     setResult(null)
-    setLoadingText('따뜻한 처방전을 데우고 있어요…')
+    setLoadingText('고양이 코치가 온기를 담아 마음 처방전을 굽고 있어요…')
 
     // 3초 지연 시 문구 유연 변경 (Policy 3)
     const delayTimer = setTimeout(() => {
-      setLoadingText('조금만 기다려주세요, 충전 완료 직전이에요!')
+      setLoadingText('조금만 기다려주세요, 고양이가 처방전을 마저 다듬고 있어요 🐾')
     }, 3000)
     timers.current.push(delayTimer)
 
@@ -191,7 +191,7 @@ export default function Page() {
         {/* 헤더 */}
         <header className="mb-6 text-center">
           <p className="font-doodle text-muted-foreground text-base">
-            하루에 한 번, 나를 위한 정비 시간
+            하루에 한 번, 나를 위한 따뜻한 쉼표
           </p>
           <h1 className="font-doodle mt-1 text-4xl font-bold leading-tight sm:text-5xl">
             오늘의 배터리 <span aria-hidden="true">🔋</span>
@@ -216,7 +216,7 @@ export default function Page() {
                   className="bt-pop-in absolute -top-1 left-1/2 z-10 -translate-x-1/2 -translate-y-full"
                 >
                   <div className="border-destructive bg-destructive font-doodle relative rounded-2xl border-2 px-4 py-2 text-base whitespace-nowrap text-white">
-                    피로 원인을 하나 골라주세요!
+                    오늘의 피로 고민을 하나 골라주세요!
                     <span
                       aria-hidden="true"
                       className="border-destructive bg-destructive absolute -bottom-[7px] left-1/2 size-3 -translate-x-1/2 rotate-45 border-b-2 border-r-2"
@@ -226,7 +226,7 @@ export default function Page() {
               )}
 
               <p className="font-doodle mb-3 text-center text-lg">
-                무엇 때문에 배터리가 닳았나요?
+                오늘 어떤 고민 때문에 마음에 그늘이 졌나요?
               </p>
 
               <div
