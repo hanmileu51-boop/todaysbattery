@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Check, Music4, RotateCcw, ThumbsDown, ThumbsUp, Timer } from 'lucide-react'
+import { Check, MessageSquareHeart, Music4, RotateCcw, Sparkles, ThumbsDown, ThumbsUp, Timer, Volume2, VolumeX } from 'lucide-react'
 import { getStage, type Prescription } from '@/lib/battery'
 import { cn } from '@/lib/utils'
 
@@ -12,11 +12,28 @@ type Props = {
   onReset: () => void
 }
 
+const QUICK_QUESTIONS = [
+  '1분 루틴 더 쉽게 하는 법?',
+  '지금 잠이 안 와냥',
+  '응원 한 번 더 해줘!',
+]
+
 export function ResultCard({ level, prescription, onFeedback, onReset }: Props) {
   const [done, setDone] = useState<boolean[]>([false, false, false])
   const [missionDone, setMissionDone] = useState(false)
   const [gaugeFilled, setGaugeFilled] = useState(false)
   const [voted, setVoted] = useState<'up' | 'down' | null>(null)
+
+  // AI 스트리밍 & 타자기 이펙트 상태 (Phase 3)
+  const [typedCoach, setTypedCoach] = useState('')
+  
+  // 대화형 꼬리질문 상태 (Phase 2)
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatReply, setChatReply] = useState<string | null>(null)
+  const [activeQuestion, setActiveQuestion] = useState<string | null>(null)
+
+  // 앰비언트 AI 사운드 플레이어 상태 (Phase 4)
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
   const target = Math.min(100, level + prescription.gain)
   const stage = getStage(level)
@@ -27,11 +44,57 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
     return () => clearTimeout(t)
   }, [])
 
+  // 타자기 애니메이션 이펙트
+  useEffect(() => {
+    setTypedCoach('')
+    let i = 0
+    const fullText = prescription.coach
+    const interval = setInterval(() => {
+      if (i < fullText.length) {
+        setTypedCoach(fullText.slice(0, i + 1))
+        i++
+      } else {
+        clearInterval(interval)
+      }
+    }, 25)
+    return () => clearInterval(interval)
+  }, [prescription.coach])
+
+  // 꼬리질문 API 호출
+  const handleQuickQuestion = async (q: string) => {
+    if (chatLoading) return
+    setActiveQuestion(q)
+    setChatLoading(true)
+    setChatReply(null)
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          battery_level: level,
+          fatigue_reason: prescription.banner,
+          question: q,
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setChatReply(data.reply || '집사야, 언제나 응원한다냥! 🐾')
+      } else {
+        setChatReply('힘내라냥! 고양이가 곁에서 골골송을 불러줄게냥 🐾')
+      }
+    } catch {
+      setChatReply('힘내라냥! 고양이가 곁에서 골골송을 불러줄게냥 🐾')
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
   const toggle = (i: number) =>
     setDone((prev) => prev.map((v, idx) => (idx === i ? !v : v)))
 
   const completed = done.filter(Boolean).length
-  // 루틴 3개 + 10초 미션 = 4단계. 실제 실천량만큼 게이지가 찬다.
   const steps = completed + (missionDone ? 1 : 0)
   const earned = Math.round((prescription.gain * steps) / 4)
   const current = Math.min(100, level + earned)
@@ -116,7 +179,7 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
           </ul>
         </div>
 
-        {/* 고양이 코치 말풍선 */}
+        {/* 고양이 코치 말풍선 & 타자기 애니메이션 */}
         <div className="flex items-start gap-3">
           <span
             aria-hidden="true"
@@ -124,29 +187,92 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
           >
             🐱
           </span>
-          <div className="border-foreground/85 bg-accent relative rounded-2xl rounded-tl-sm border-[3px] px-4 py-3">
+          <div className="border-foreground/85 bg-accent relative rounded-2xl rounded-tl-sm border-[3px] px-4 py-3 min-h-[60px] w-full">
             <span
               aria-hidden="true"
               className="border-foreground/85 bg-accent absolute -left-[9px] top-3 size-3.5 rotate-45 border-b-[3px] border-l-[3px]"
             />
-            <p className="text-accent-foreground text-[15px] leading-relaxed text-pretty">
-              {prescription.coach}
+            <p className="text-accent-foreground text-[15px] leading-relaxed text-pretty font-medium">
+              {typedCoach}
+              {typedCoach.length < prescription.coach.length && (
+                <span className="inline-block w-1.5 h-4 bg-foreground ml-1 animate-pulse" />
+              )}
             </p>
           </div>
         </div>
 
-        {/* BGM + 10초 미션 */}
+        {/* [Phase 2] 고양이 코치 1초 대화형 꼬리질문 영역 */}
+        <div className="rounded-2xl border-2 border-border/80 bg-background/50 p-3.5">
+          <div className="mb-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MessageSquareHeart className="size-4 text-primary" aria-hidden="true" />
+            <span className="font-doodle text-sm font-semibold">고양이 코치에게 더 물어보기</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {QUICK_QUESTIONS.map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => handleQuickQuestion(q)}
+                disabled={chatLoading}
+                className={cn(
+                  'font-doodle rounded-full border-2 px-3 py-1.5 text-xs transition-all duration-150',
+                  activeQuestion === q
+                    ? 'border-foreground bg-primary text-primary-foreground font-bold'
+                    : 'border-border bg-card hover:border-foreground/60 text-foreground',
+                )}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          {/* 질문 답변 표시 */}
+          {chatLoading && (
+            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground font-doodle animate-pulse">
+              <Sparkles className="size-3.5 text-primary" />
+              고양이가 다정하게 답장 생각 중... 🐾
+            </div>
+          )}
+
+          {chatReply && !chatLoading && (
+            <div className="mt-3 rounded-xl border-2 border-primary/40 bg-primary/10 p-3 text-xs text-foreground font-doodle leading-relaxed">
+              <span className="font-bold text-primary mr-1">💬 고양이 코치:</span> {chatReply}
+            </div>
+          )}
+        </div>
+
+        {/* BGM + 10초 미션 (Phase 4 앰비언트 오디오 연동) */}
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="border-border bg-background rounded-2xl border-2 p-4">
-            <div className="text-muted-foreground mb-2 flex items-center gap-1.5">
-              <Music4 className="size-4" aria-hidden="true" />
-              <span className="font-doodle text-sm">추천 BGM</span>
+            <div className="text-muted-foreground mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Music4 className="size-4" aria-hidden="true" />
+                <span className="font-doodle text-sm">추천 BGM</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPlayingAudio(!isPlayingAudio)}
+                className="inline-flex items-center gap-1 text-xs font-doodle text-primary hover:underline"
+              >
+                {isPlayingAudio ? (
+                  <>
+                    <Volume2 className="size-3.5 text-primary animate-bounce" />
+                    재생 중
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="size-3.5" />
+                    듣기
+                  </>
+                )}
+              </button>
             </div>
             <p className="font-doodle text-lg leading-tight">
               {prescription.bgm.title}
             </p>
             <span className="text-muted-foreground mt-1 inline-block text-xs">
-              {prescription.bgm.tag}
+              {prescription.bgm.tag} {isPlayingAudio ? '🎵 (앰비언트 모드 활성)' : ''}
             </span>
           </div>
 
@@ -293,3 +419,4 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
     </section>
   )
 }
+
