@@ -47,64 +47,110 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const apiKey = process.env.OPENAI_API_KEY
+    const geminiApiKey = process.env.GEMINI_API_KEY
+    const openaiApiKey = process.env.OPENAI_API_KEY
 
-    // 2. API Key 없거나 타임아웃/에러 시 Fallback
-    if (!apiKey) {
-      console.warn('[API/prescribe] OPENAI_API_KEY is not set. Returning fallback prescription.')
-      return NextResponse.json(getFallbackPrescription(battery_level, fatigue_reason))
+    // 2. Gemini API Key 지원
+    if (geminiApiKey) {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: 'user',
+                  parts: [
+                    {
+                      text: `${SYSTEM_PROMPT}\n\n사용자 입력 데이터: ${JSON.stringify({
+                        battery_level,
+                        fatigue_reason,
+                      })}`,
+                    },
+                  ],
+                },
+              ],
+              generationConfig: {
+                responseMimeType: 'application/json',
+                temperature: 0.7,
+              },
+            }),
+          },
+        )
+
+        clearTimeout(timeoutId)
+
+        if (geminiRes.ok) {
+          const data = await geminiRes.json()
+          const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text
+          if (textResponse) {
+            const parsed = JSON.parse(textResponse)
+            return NextResponse.json(parsed)
+          }
+        } else {
+          console.warn('[API/prescribe] Gemini API status:', geminiRes.status)
+        }
+      } catch (err: any) {
+        clearTimeout(timeoutId)
+        console.warn('[API/prescribe] Gemini API exception/timeout:', err?.message || err)
+      }
     }
 
-    // 3. OpenAI GPT-4o-mini 호출 (5초 타임아웃 적용)
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 5000)
+    // 3. OpenAI API Key 지원 (Fallback 1)
+    if (openaiApiKey) {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
 
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          temperature: 0.7,
-          response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            {
-              role: 'user',
-              content: JSON.stringify({
-                battery_level,
-                fatigue_reason,
-              }),
-            },
-          ],
-        }),
-      })
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${openaiApiKey}`,
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            temperature: 0.7,
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
+              {
+                role: 'user',
+                content: JSON.stringify({
+                  battery_level,
+                  fatigue_reason,
+                }),
+              },
+            ],
+          }),
+        })
 
-      clearTimeout(timeoutId)
+        clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        console.error('[API/prescribe] OpenAI API error status:', response.status)
-        return NextResponse.json(getFallbackPrescription(battery_level, fatigue_reason))
+        if (response.ok) {
+          const data = await response.json()
+          const contentStr = data.choices?.[0]?.message?.content
+          if (contentStr) {
+            const parsedJSON = JSON.parse(contentStr)
+            return NextResponse.json(parsedJSON)
+          }
+        }
+      } catch (err: any) {
+        clearTimeout(timeoutId)
+        console.warn('[API/prescribe] OpenAI API exception/timeout:', err?.message || err)
       }
-
-      const data = await response.json()
-      const contentStr = data.choices?.[0]?.message?.content
-
-      if (!contentStr) {
-        return NextResponse.json(getFallbackPrescription(battery_level, fatigue_reason))
-      }
-
-      const parsedJSON = JSON.parse(contentStr)
-      return NextResponse.json(parsedJSON)
-    } catch (err: any) {
-      clearTimeout(timeoutId)
-      console.error('[API/prescribe] Fetch exception or timeout:', err?.message || err)
-      return NextResponse.json(getFallbackPrescription(battery_level, fatigue_reason))
     }
+
+    // 4. API Key 미설정 또는 실패/타임아웃 시 정적 Fallback 처방 반환
+    console.warn('[API/prescribe] Returning static fallback prescription.')
+    return NextResponse.json(getFallbackPrescription(battery_level, fatigue_reason))
   } catch (error) {
     return NextResponse.json(
       { error: '잘못된 요청 형식이거나 알 수 없는 에러입니다.' },
