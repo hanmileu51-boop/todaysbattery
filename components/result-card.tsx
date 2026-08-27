@@ -17,9 +17,6 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
   const [missionDone, setMissionDone] = useState(false)
   const [gaugeFilled, setGaugeFilled] = useState(false)
   const [voted, setVoted] = useState<'up' | 'down' | null>(null)
-  const [chatInput, setChatInput] = useState('')
-  const [chatReply, setChatReply] = useState<string | null>(null)
-  const [chatLoading, setChatLoading] = useState(false)
 
   const target = Math.min(100, level + prescription.gain)
   const stage = getStage(level)
@@ -120,82 +117,21 @@ export function ResultCard({ level, prescription, onFeedback, onReset }: Props) 
         </div>
 
         {/* 고양이 코치 말풍선 */}
-        <div className="flex flex-col gap-3">
-          <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="border-foreground/85 bg-secondary grid size-11 shrink-0 place-items-center rounded-full border-[3px] text-xl"
+          >
+            🐱
+          </span>
+          <div className="border-foreground/85 bg-accent relative rounded-2xl rounded-tl-sm border-[3px] px-4 py-3">
             <span
               aria-hidden="true"
-              className="border-foreground/85 bg-secondary grid size-11 shrink-0 place-items-center rounded-full border-[3px] text-xl"
-            >
-              🐱
-            </span>
-            <div className="border-foreground/85 bg-accent relative flex-1 rounded-2xl rounded-tl-sm border-[3px] px-4 py-3">
-              <span
-                aria-hidden="true"
-                className="border-foreground/85 bg-accent absolute -left-[9px] top-3 size-3.5 rotate-45 border-b-[3px] border-l-[3px]"
-              />
-              <p className="text-accent-foreground text-[15px] leading-relaxed text-pretty">
-                {prescription.coach}
-              </p>
-            </div>
-          </div>
-
-          {/* AI 고양이 1회 대화 인터랙션 */}
-          <div className="border-foreground/30 bg-secondary/30 rounded-2xl border-2 p-3.5">
-            <p className="font-doodle text-foreground/80 mb-2 text-sm font-bold">
-              💬 고양이 코치에게 속마음 한마디 남기기
+              className="border-foreground/85 bg-accent absolute -left-[9px] top-3 size-3.5 rotate-45 border-b-[3px] border-l-[3px]"
+            />
+            <p className="text-accent-foreground text-[15px] leading-relaxed text-pretty">
+              {prescription.coach}
             </p>
-            {chatReply ? (
-              <div className="bt-pop-in bg-card border-foreground/85 rounded-xl border-2 p-3">
-                <p className="font-doodle text-primary text-xs font-bold mb-1">🐾 고양이 코치의 답장</p>
-                <p className="text-foreground text-sm leading-relaxed">{chatReply}</p>
-              </div>
-            ) : (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  if (!chatInput.trim() || chatLoading) return
-                  setChatLoading(true)
-                  try {
-                    const res = await fetch('/api/chat', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        user_message: chatInput,
-                        battery_level: level,
-                        fatigue_reason: prescription.banner,
-                      }),
-                    })
-                    if (res.ok) {
-                      const data = await res.json()
-                      setChatReply(data.reply || '토닥토닥, 마음 쓰지 말고 푹 쉬어냥! 🐾')
-                    } else {
-                      setChatReply('토닥토닥, 항상 곁에서 응원할게냥! 🐾')
-                    }
-                  } catch {
-                    setChatReply('토닥토닥, 괜찮아냥. 마음 고생 많았어 🐾')
-                  } finally {
-                    setChatLoading(false)
-                  }
-                }}
-                className="flex items-center gap-2"
-              >
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  disabled={chatLoading}
-                  placeholder="예: 오늘 진짜 피곤했어..."
-                  className="font-doodle bg-background border-border placeholder:text-muted-foreground/60 w-full flex-1 rounded-xl border-2 px-3 py-2 text-sm focus:outline-none focus:border-foreground"
-                />
-                <button
-                  type="submit"
-                  disabled={chatLoading || !chatInput.trim()}
-                  className="font-doodle bg-primary text-primary-foreground border-foreground rounded-xl border-2 px-3.5 py-2 text-sm font-bold shadow-[0_2px_0_0_var(--foreground)] disabled:opacity-50"
-                >
-                  {chatLoading ? '냥냥...' : '보내기'}
-                </button>
-              </form>
-            )}
           </div>
         </div>
 
